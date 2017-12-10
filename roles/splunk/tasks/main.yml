@@ -1,0 +1,17 @@
+---
+- name: copy over the splunk installation deb
+  copy: src=/files/{{ splunk_filename }} dest=/tmp
+
+- name: install splunk with dpkg
+  command: dpkg -i /tmp/{{ splunk_filename }} creates=/opt/splunk
+
+- name: splunk license
+  command: /opt/splunk/bin/splunk start --accept-license creates=/opt/splunk/etc/users/splunk-system-user
+
+- name: setup to start at boot
+  command: /opt/splunk/bin/splunk enable boot-start
+
+- name: write splunk config file
+  template: src=/etc/ansible/roles/splunk/templates/web.conf.j2 dest=/opt/splunk/etc/system/local/web.conf
+  notify:
+  - restart splunk
